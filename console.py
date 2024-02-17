@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,16 +115,59 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        ignored_attributes = ('id', 'created_at', 'updated_at', '__class__')
+        class_name = ''
+        pattern_name = r'?P<name>(?:[a-zA-Z]|\d)(?:[a-zA-Z]|\d|-)*)'
+        class_match = re.match(pattern_name, args)
+        kwargs_object = {}
+        if class_match is not None:
+            class_name = class_match.group('name')
+            pms_str = args[len(class_name):].strip()
+            pms = pms_str.split(' ')
+            pattern_str = r'(?P<t_str>"([^"]|\")*")'
+            pattern_float = r'(?P<t_float>[-+]?\d+\.\d+)'
+            pattern_int = r'(?P<t_int>[-+]?\d+)'
+            pattern_pm = '{}=({}|{}'.format(
+                pattern_name,
+                pattern_str,
+                pattern_float,
+                pattern_int
+            )
+            for pm in pms:
+                pm_match = re.fullmatch(pattern_pm, pm)
+                if pm_match is not None:
+                    key_name = pm_match.group('name')
+                    str_v = pm_match.group('t_str')
+                    float_v = pm_match.group('t_float')
+                    int_v = pm_match.group('t_int')
+                    if float_v is not None:
+                        kwargs_object[key_name] = float(float_v)
+                    if int_v is not None:
+                        kwargs_object[key_name] = int(int_v)
+                    if str_v is not None:
+                        kwargs_object[key_name] = str(str_v)
+            else:
+                class_name = args
+                if not class_name:
+                    print("**class name missing **")
+                    return
+                if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+                    if not hasattr(kwargs_object, 'id'):
+                        kwargs_object['id'] = str(uuid.uuid4())
+                    if not hasattr(kwargs_object, 'created_at'):
+                        kwargs_object['created_at'] = str(datetime.now())
+                    if not hasattr(kwargs_object, 'updated_at'):
+                        kwargs_object['updated_at'] = str(datetime.now())
+                    new_inst = HBNBCommand.classes[class_name](**kwargs_object)
+                    new_inst.save()
+                    print(new_inst.id)
+                else:
+                    new_inst = HBNBCcommand.classes[class_name]()
+                    for k, v in kwargs_object.items():
+                        if k not in ignored_attributes:
+                            setattr(new_inst, k, v)
+                    new_inst.save()
+                    print(new_inst.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -187,7 +230,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -319,6 +362,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
