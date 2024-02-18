@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
+import os
+from importlib import import_module
 
 
 class FileStorage:
@@ -17,7 +19,7 @@ class FileStorage:
             for key, value in self.__objects.items():
                 if type(value) is cls:
                     flt_dict[key] = value
-            return filtered_dict
+            return flt_dict
 
     def delete(self, obj=None):
         """Removes an object from the storage dictionary"""
