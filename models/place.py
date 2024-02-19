@@ -2,7 +2,7 @@
 """ Place Module for HBNB project """
 from models.base_model import BaseModel, Base
 import os
-from sqlalchemy import Column, Float, ForeignKey, Interger, String, Table
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 from models.review import Review
 from models.amenity import Amenity
@@ -45,7 +45,7 @@ class Place(BaseModel, Base):
     ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else ''
     number_rooms = Column(
         Integer, nullable=False, default=0
-    ) if os.geten('HBNB_TYPE_STORAGE') == 'db' else 0
+    ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else 0
     number_bathrooms = Column(
         Integer, nullable=False, default=0
     ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else 0
