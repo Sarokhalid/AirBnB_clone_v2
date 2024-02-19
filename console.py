@@ -151,14 +151,14 @@ class HBNBCommand(cmd.Cmd):
                         kwargs_object[key_name] = int(int_v)
                     if str_v is not None:
                         kwargs_object[key_name] = str_v[1:-1].replace('_', ' ')
-            else:
-                class_name = args
+        else:
+            class_name = args
             if not class_name:
                 print("** class name missing **")
                 return
             elif class_name not in HBNBCommand.classes:
-	        print("** class doesn't exist **")
-		 return
+                print("** class doesn't exist **")
+                return
             if os.getenv('HBNB_TYPE_STORAGE') == 'db':
                 if not hasattr(kwargs_object, 'id'):
                     kwargs_object['id'] = str(uuid.uuid4())
