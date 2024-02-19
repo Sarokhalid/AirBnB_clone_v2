@@ -25,7 +25,7 @@ class DBStorage:
         host = os.getenv('HBNB_MYSQL_HOST')
         db_name = os.getenv('HBNB_MYSQL_DB')
         env = os.getenv('HBNB_ENV')
-        DATABASE_URL = "mysql+mysqldb://{}:{}@{}3306/{}".format(
+        DATABASE_URL = "mysql+mysqldb://{}:{}@{}:3306/{}".format(
             user, pword, host, db_name
         )
         self.__engine = create_engine(
@@ -46,7 +46,7 @@ class DBStorage:
                     obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
                     obs[obj_key] = obj
         else:
-            query = self.__sessiojn.query(cls)
+            query = self.__session.query(cls)
             for obj in query.all():
                 obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
                 obs[obj_key] = obj
