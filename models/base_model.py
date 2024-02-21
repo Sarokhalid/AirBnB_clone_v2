@@ -12,7 +12,7 @@ Base = declarative_base()
 
 class BaseModel:
     """A base class for all hbnb models"""
-    id = Column(String(60), nullable=False, primary_key=True, unique=True)
+    id = Column(String(60), nullable=False, primary_key=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
@@ -20,21 +20,15 @@ class BaseModel:
         """Instatntiates a new model"""
         if not kwargs:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+            self.created_at = datetime.utcnow()
+            self.updated_at = datetime.utcnow()
+            models.storage.new(self)
         else:
-            for key, value in kwargs.items():
-                if key != '__class__':
-                    if key in ('created_at', 'updated_at'):
-                        setattr(self, key, datetime.fromisoformat(value))
-                    else:
-                        setattr(self, key, value)
-            if not hasattr(self, 'id'):
-                setattr(self, 'id', str(uuid.uuid4()))
-            if not hasattr(self, 'created_at'):
-                setattr(self, 'created_at', datetime.now())
-            if not hasattr(self, 'updated_at'):
-                setattr(self, 'updated_at', datetime.now())
+            if 'id' not in kwargs:
+                kwargs['id'] = str(uuid.uuid4())
+            kwargs['created_at'] = datetime.utcnow()
+            kwargs['updated_at'] = datetime.utcnow()
+            self.__dict__.update(kwargs)
 
     def __str__(self):
         """Returns a string representation of the instance"""
@@ -48,17 +42,13 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
-        from models import storage
-        self.updated_at = datetime.now()
-        storage.new(self)
-        storage.save()
+        models.storage.new(self)
+        models.storage.save()
 
     def to_dict(self):
-        res = self.__dict__.copy()
-        res.pop('_sa_instance_state', None)
-        for key, value in res.items():
-            if key != '_sa_instance_state':
-                if isinstance(value, datetime):
-                    res[key] = value.isformat()
-        res['__class__)'] = type(self).__name__
-        return res
+        data = self.__dict__.copy()
+        if '_sa_instance_state' in data:
+            del data['_sa_instance_state']
+        data['created_at'] = self.created_at.isoformat()
+        data['updated_at'] = self.updated_at.isoformat()
+        return data
