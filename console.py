@@ -121,6 +121,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
+<<<<<<< HEAD
         ignored_attr = ('id', 'created_at', 'updated_at', '__class__')
         class_name = ''
         name_pattern = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
@@ -177,6 +178,45 @@ class HBNBCommand(cmd.Cmd):
                         setattr(new_inst, k, v)
                 new_inst.save()
                 print(new_inst.id)
+=======
+        if not args:
+            print(" class name missing ")
+            return
+        parts = args.split()
+        class_name = parts[0]
+        params = parts[1:]
+        if class_name not in HBNBCommand.classes:
+            print(" class doesn't exist ")
+            return
+        class_obj = HBNBCommand.classes[class_name]
+        # Parse parameters
+        obj_params = {}
+        for param in params:
+            if '=' in param:
+                key, value = param.split('=')
+                if value.startswith('"') and value.endswith('"'):
+                    # String value
+                    value = value[1:-1].replace('_', ' ')
+                elif '.' in value:
+                    # Float value
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        print(f"Invalid parameter: {param}")
+                        continue
+                else:
+                    # Integer value
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        print(f"Invalid parameter: {param}")
+                        continue
+                obj_params[key] = value
+            new_instance = class_obj(**obj_params)
+            storage.save()
+            print(new_instance.id)
+            storage.save()
+>>>>>>> fb1d18deda47f084502d7bd694c4c2c0f2b1e0b6
 
     def help_create(self):
         """ Help information for the create method """

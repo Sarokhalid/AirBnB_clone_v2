@@ -15,17 +15,18 @@ class State(BaseModel, Base):
     ) if os.getenv('HBNB_TYPE_STORAGE') == 'db' else ''
     if os.getenv('HBNB_TYPE_STORAGE') == 'db':
         cities = relationship(
-            'City',
-            cascade='all, delete. delete-orphan',
-            backref='state'
+            "City",
+            cascade="all, delete",
+            backref="state"
         )
     else:
         @property
         def cities(self):
             """return cities in state"""
             from models import storage
-            cities_in_state = []
-            for value in storage.all(City).values():
-                if value.state_id == self.id:
-                    cities_in_state.append(value)
-            return cities_in_state
+            city_list = []
+            cities = storage.all(City)
+            for city in cities.values():
+                if city.state_id == self.id:
+                    city_list.append(city)
+            return city_list
