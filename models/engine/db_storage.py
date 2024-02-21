@@ -21,55 +21,40 @@ class DBStorage:
     def __init__(self):
         """initialize SQL databsse storage"""
         user = os.getenv('HBNB_MYSQL_USER')
-        pword = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        db_name = os.getenv('HBNB_MYSQL_DB')
+        password = os.getenv('HBNB_MYSQL_PWD')
+        host = os.getenv('HBNB_MYSQL_HOST', default='localhost')
+        database = os.getenv('HBNB_MYSQL_DB')
         env = os.getenv('HBNB_ENV')
-        DATABASE_URL = "mysql+mysqldb://{}:{}@{}:3306/{}".format(
-            user, pword, host, db_name
-        )
-        self.__engine = create_engine(
-            DATABASE_URL,
-            pool_pre_ping=True
-        )
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'.format(
+            user, password, host, database), pool_pre_ping=True)
         if env == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
         """return dictionary of models"""
-        obs = dict()
-        all_classes = (User, State, City, Amenity, Place, Review)
-        if cls is None:
-            for class_type in all_classes:
-                query = self.__session.query(class_type)
-                for obj in query.all():
-                    obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-                    obs[obj_key] = obj
+        objects = {}
+        classes = (User, State, City, Amenity, Place, Review)
+        if cls is not None:
+            query = self.session.query(cls).all()
+            for obj in query:
+                    key = '{}.{}'.format(type(obj).__name__, obj.id)
+                    objects[key] = obj
         else:
-            query = self.__session.query(cls)
-            for obj in query.all():
-                obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-                obs[obj_key] = obj
-        return obs
+            for cls in classes:
+                query = self.session.query(cls).all()
+                for obj in query:
+                    key = '{}.{}'.format(type(obj).__name__, obj.id)
+                    objects[key] = obj
+            return objects
 
     def delete(self, obj=None):
         """Remove object from storage"""
         if obj is not None:
-            self.__session.query(type(obj)).filter(
-                type(obj).id == obj.id).delete(
-                synchronize_session=False
-            )
+            self.__session.delete(obj)
 
     def new(self, obj):
         """add new object to storage database"""
-        if obj is not None:
-            try:
-                self.__session.add(obj)
-                self.__session.flush()
-                self.__session.refresh(obj)
-            except Exception as ex:
-                self.__session.rollback()
-                raise ex
+        self.__session.add(obj)
 
     def save(self):
         """commits settions change database"""
@@ -82,7 +67,8 @@ class DBStorage:
             bind=self.__engine,
             expire_on_commit=False
         )
-        self.__session = scoped_session(SessionFactory)()
+        Settion = scoped_session(SessionFactory)
+        self.__session = Session()
 
     def close(self):
         """close storge database"""
