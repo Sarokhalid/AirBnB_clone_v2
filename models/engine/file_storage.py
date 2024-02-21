@@ -31,41 +31,35 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                    cls_name = val['__class__']
-                    if cls_name in classes:
-                        self.all()[key] = classes[cls_name](**val)
-        except json.decoder.JSONDecodeError:
+                    class_name = val['__class__']
+                    obj = classes[class_name](**val)
+                    FileStorag.__objects[key] = obj
+        except FileNotFoundError:
             pass
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
         if cls is None:
-            return FileStorage.__objects
+            return list(FileStorage.__objects.values())
         else:
-            objects_of_cls = {}
-            for key, obj in FileStorage.__objects.items():
-                if cls.__name__ == obj.__class__.__name__:
-                    objects_of_cls[key] = obj
-            return objects_of_cls
+            return [obj for obj in FileStorage.__objects.values()
+                    if isinstance(obj, cls)]
 
     def delete(self, obj=None):
         """Removes an object from the storage dictionary"""
-        if obj is None:
-            return
-        key = obj.__class__.__name__ + '.' + obj.id
-        if key in self.all():
-            del self.all()[key]
+        if obj is not None and obj.id in self.__objects:
+            del self.__objects[obj.id]
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all()[obj.__class__.__name__ + '.' + obj.id] = obj
+        self.all().append(obj)
 
     def save(self):
         """Saves storage dictionary to file"""
+        temp = {}
+        for key, val in FileStorage.__objects.items():
+            temp[key] = val.to_dict()
         with open(FileStorage.__file_path, 'w') as f:
-            temp = {}
-            for key, val in FileStorage.__objects.items():
-                temp[key] = val.to_dict()
             json.dump(temp, f)
 
     def close(self):

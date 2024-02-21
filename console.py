@@ -131,7 +131,7 @@ class HBNBCommand(cmd.Cmd):
             return
         class_obj = HBNBCommand.classes[class_name]
         # Parse parameters
-        obj_params = {}
+        oparams = {}
         for param in params:
             if '=' in param:
                 key, value = param.split('=')
@@ -152,8 +152,8 @@ class HBNBCommand(cmd.Cmd):
                     except ValueError:
                         print(f"Invalid parameter: {param}")
                         continue
-                obj_params[key] = value
-            new_instance = class_obj(**obj_params)
+                oparams[key] = value
+            new_instance = class_obj(**oparams)
             storage.save()
             print(new_instance.id)
             storage.save()
