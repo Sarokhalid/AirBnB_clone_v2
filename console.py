@@ -120,8 +120,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
-<<<<<<< HEAD
+        """hjgffhjjnkjgf"""
         ignored_attr = ('id', 'created_at', 'updated_at', '__class__')
         class_name = ''
         name_pattern = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
@@ -178,9 +177,9 @@ class HBNBCommand(cmd.Cmd):
                         setattr(new_inst, k, v)
                 new_inst.save()
                 print(new_inst.id)
-=======
+
         if not args:
-            print(" class name missing ")
+            print(" clasame missing ")
             return
         parts = args.split()
         class_name = parts[0]
@@ -215,8 +214,7 @@ class HBNBCommand(cmd.Cmd):
             new_instance = class_obj(**obj_params)
             storage.save()
             print(new_instance.id)
-            storage.save()
->>>>>>> fb1d18deda47f084502d7bd694c4c2c0f2b1e0b6
+          
 
     def help_create(self):
         """ Help information for the create method """
