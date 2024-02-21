@@ -2,7 +2,6 @@
 """This module defines a class to manage file storage for hbnb clone"""
 import json
 import os
-from importlib import import_module
 
 
 class FileStorage:
@@ -35,7 +34,7 @@ class FileStorage:
                     cls_name = val['__class__']
                     if cls_name in classes:
                         self.all()[key] = classes[cls_name](**val)
-        except FileNotFoundError:
+        except json.decoder.JSONDecodeError:
             pass
 
     def all(self, cls=None):
