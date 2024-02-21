@@ -45,6 +45,7 @@ class User(BaseModel, Base):
                 if place.user_id == self.id:
                     place_list.append(place)
             return place_list
+
         @property
         def reviews(self):
             """getter attribute retuen list of review instances"""

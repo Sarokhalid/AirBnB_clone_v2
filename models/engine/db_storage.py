@@ -25,8 +25,9 @@ class DBStorage:
         host = os.getenv('HBNB_MYSQL_HOST', default='localhost')
         database = os.getenv('HBNB_MYSQL_DB')
         env = os.getenv('HBNB_ENV')
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'.format(
-            user, password, host, database), pool_pre_ping=True)
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}:3306/{}'
+                                      .format(user, password, host, database),
+                                      pool_pre_ping=True)
         if env == 'test':
             Base.metadata.drop_all(self.__engine)
 
@@ -37,8 +38,8 @@ class DBStorage:
         if cls is not None:
             query = self.session.query(cls).all()
             for obj in query:
-                    key = '{}.{}'.format(type(obj).__name__, obj.id)
-                    objects[key] = obj
+                key = '{}.{}'.format(type(obj).__name__, obj.id)
+                objects[key] = obj
         else:
             for cls in classes:
                 query = self.session.query(cls).all()

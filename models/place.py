@@ -82,6 +82,7 @@ class Place(BaseModel, Base):
                 if review.place_id == self.id:
                     review_list.append(review)
             return review_list
+
         @property
         def amenities(self):
             """getter attribute return list of amenity instances"""
