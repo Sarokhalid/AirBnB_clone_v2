@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" City Module for HBNB project """
+""" City module for HBNB project """
 from models.base_model import BaseModel, Base
 import os
 from sqlalchemy import Column, String, ForeignKey
